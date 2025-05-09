@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "location.source.url",
+  "type": "java.lang.String",
+  "description": "Android device url to access"
+}]}

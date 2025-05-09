@@ -1,0 +1,27 @@
+html,
+body {
+	height: auto;
+	margin: 0;
+	padding: 0;
+	overflow: auto;
+}
+
+#map {
+	height: 600px;
+	width: 100%;
+}
+
+.checkpoint-icon {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background-color: red;
+	border: 2px solid white;
+	cursor: pointer;
+}
+
+.checkpoint-popup {
+	font-size: 12px;
+	font-weight: bold;
+	text-align: center;
+}

@@ -1,31 +1,97 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Live Location</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-    <style>
-        #map { height: 600px; width: 100%; }
-    </style>
+	<meta charset="UTF-8">
+	<title>Live Location</title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+	<link rel="stylesheet" href="/css/styles.css">
 </head>
+
 <body>
-<h2>Live Location</h2>
-<div id="map"></div>
+	<h3>Nova Ride</h3>
+	<div id="map"></div>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script th:inline="javascript">
-	let lat = [[${latitude}]];
-	   let lon = [[${longitude}]];
+	<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+	<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+	<script th:inline="javascript">
+		let lat = [[${latitude}]];
+		let lon = [[${longitude}]];
+		let checkpoints = JSON.parse([[${checkpoints}]]);
+		let marker = null;
+		let map = L.map('map').setView([lat, lon], 15);
 
-    let map = L.map('map').setView([lat, lon], 15);
+		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom: 19,
+		}).addTo(map);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-    }).addTo(map);
+		marker = L.marker([lat, lon]).addTo(map)
+			.bindPopup("Current Location")
+			.openPopup();
 
-    let marker = L.marker([lat, lon]).addTo(map)
-        .bindPopup("Current Location")
-        .openPopup();
-</script>
+		let routeControl = null;
+		function createCheckpointMarker(lat, lon, stopName, expectedTime) {
+			let checkpointIcon = L.divIcon({
+				className: 'checkpoint-icon',
+				iconSize: [10, 10],
+				iconAnchor: [5, 5]
+			});
+			let marker = L.marker([lat, lon], {
+				icon: checkpointIcon,
+			});
+			marker.on('mouseover', function () {
+				marker.bindPopup(`<div class="checkpoint-popup">${stopName}<br>Expected Time: ${expectedTime} am</div>`).openPopup();
+			});
+
+			marker.on('mouseout', function () {
+				marker.closePopup();
+			});
+
+			return marker;
+		}
+
+		// Function to update the location and reroute if needed
+		function updateLocation() {
+			fetch('/location')
+				.then(response => response.json())
+				.then(data => {
+					let newLat = data.latitude;
+					let newLon = data.longitude;
+					lat = newLat;
+					lon = newLon;
+					marker.setLatLng([lat, lon]);
+					marker.setPopupContent(`Shuttle Current Location`).openPopup();
+					if (checkpoints.length > 0) {
+						const waypoints = [
+							L.latLng(lat, lon),
+							...checkpoints.map(cp => L.latLng(cp.latitude, cp.longitude))
+						];
+						const checkpointMarkers = checkpoints.map(cp => createCheckpointMarker(cp.latitude, cp.longitude, cp.stopName, cp.expectedTime));
+						checkpointMarkers.forEach(m => m.addTo(map));
+
+						if (routeControl) {
+							routeControl.setWaypoints(waypoints);
+						} else {
+							routeControl = L.Routing.control({
+								waypoints: waypoints,
+								routeWhileDragging: false,
+								createMarker: () => null,
+								lineOptions: {
+									styles: [{color: 'blue', weight: 4}]
+								},
+								router: L.Routing.osrmv1({serviceUrl: 'http://router.project-osrm.org/route/v1'})
+							}).addTo(map);
+						}
+					}
+				})
+				.catch(error => {
+					console.error('Error fetching location:', error);
+				});
+		}
+		updateLocation();
+		setInterval(updateLocation, 30000);
+	</script>
 </body>
+
 </html>

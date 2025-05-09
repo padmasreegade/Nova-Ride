@@ -1,0 +1,21 @@
+checkpoints:
+  - stopName: Stonegate at Devon
+    latitude: 40.04559592276773
+    longitude: -75.41414215410246
+    expectedTime: "09:00"
+  - stopName: White Dog Cafe
+    latitude: 40.04457926584236
+    longitude: -75.39136051551573
+    expectedTime: "09:06"
+  - stopName: St. David's Square
+    latitude: 40.04075389389322
+    longitude: -75.37020977820956
+    expectedTime: "09:08"
+  - stopName: Villanova University Shuttle Stop
+    latitude: 40.035009619230145
+    longitude: -75.34299990680148
+    expectedTime: "09:10"
+  - stopName: Villanova Public Safety Office
+    latitude: 40.03979051734301
+    longitude: -75.33943223672507
+    expectedTime: "09:20"

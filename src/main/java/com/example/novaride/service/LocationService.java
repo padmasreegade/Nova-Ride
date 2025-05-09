@@ -1,46 +1,36 @@
 package com.example.novaride.service;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.time.LocalDateTime;
-import java.util.logging.Logger;
 
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.example.novaride.entity.LocationData;
 
 @Service
 public class LocationService {
-	
-	@Autowired
-	private LocationData latestLocation;
 
-    @Scheduled(fixedRate = 30000)
-    public LocationData getLatestLocation() throws IOException, InterruptedException {
-    	String url = "http://10.0.0.142:8081";
-    	HttpClient client  = HttpClient.newHttpClient();
-    	HttpRequest request = HttpRequest.newBuilder()
-    							.uri(URI.create(url))
-    							.header("accept", "application/json")
-    							.build();
-    	HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-    	
-    	System.out.println("Polling for location at " + LocalDateTime.now());
-    	
-    	JSONObject json = new JSONObject(response.body());
-    	double latitude = json.getDouble("latitude");
-    	double longitude = json.getDouble("longitude");
+	private final WebClient webClient;
+	private final String locationApiUrl;
+	private final LocationData latestLocation;
 
-    	latestLocation.setLatitude(latitude);
-    	latestLocation.setLongitude(longitude);
+	public LocationService(WebClient webClient, @Value("${location.source.url}") String locationApiUrl,
+			LocationData latestLocation) {
+		this.webClient = webClient;
+		this.locationApiUrl = locationApiUrl;
+		this.latestLocation = latestLocation;
+	}
 
-    	return latestLocation;
-    }
+	@Scheduled(fixedRate = 30000)
+	public LocationData getLatestLocation() {
+		LocationData location = webClient.get().uri(locationApiUrl).retrieve().bodyToMono(LocationData.class).block();
+		if (location != null) {
+			latestLocation.setLatitude(location.getLatitude());
+			latestLocation.setLongitude(location.getLongitude());
+		}
+		System.out.println("Polled using WebClient at " + LocalDateTime.now());
+		return latestLocation;
+	}
 }
