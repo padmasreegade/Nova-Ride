@@ -70,3 +70,6 @@ NovaRide/
 
 #### Web Frontend
 - After running the springboot app, access ```http://<baseurl>:<port>/map```
+
+<img width="959" alt="image" src="https://github.com/user-attachments/assets/e7189160-ca78-4392-81b2-8b5f7b20937d" />
+
