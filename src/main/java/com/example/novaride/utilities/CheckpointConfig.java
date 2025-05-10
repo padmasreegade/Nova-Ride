@@ -27,9 +27,4 @@ public class CheckpointConfig {
 	public void setCheckpoints(List<Checkpoint> checkpoints) {
 		this.checkpoints = checkpoints;
 	}
-	
-	@PostConstruct
-	public void init() {
-	    System.out.println("Loaded checkpoints: " + this.checkpoints);
-	}
 }
