@@ -16,7 +16,7 @@ NovaRide/
 └── README.md                                # This file
  ```
 
-#### Working
+#### Workflow
 
 ##### 1. Android App (Driver Device)
 
@@ -49,10 +49,11 @@ NovaRide/
 
 #### Technologies Used
 
-- ###### Layer	        Technology
-* Android App	          Java/Kotlin, Android SDK
-* Backend API	          Spring Boot, Java, REST, WebClient
-+ Web Frontend	        HTML, CSS, JavaScript, Thymeleaf, Leaflet, OSRM
+ | Layer | Technology |
+ | -------------- | ----------------------------------------------- |
+ | Android App |	          Java/Kotlin, Android SDK |
+ | Backend API |	          Spring Boot, Java, REST, WebClient |
+ | Web Frontend	|         HTML, CSS, JavaScript, Thymeleaf, Leaflet, OSRM |
 
 #### Getting Started
 
